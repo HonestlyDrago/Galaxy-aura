@@ -1,4 +1,15 @@
-import type { CookieOptions, Request } from "express";
+// Duck-typed request interface — avoids dependency on any specific @types/express version
+type RequestLike = {
+  protocol?: string;
+  headers: Record<string, string | string[] | undefined>;
+};
+
+export type SessionCookieOptions = {
+  httpOnly: boolean;
+  path: string;
+  sameSite: "lax" | "none" | "strict";
+  secure: boolean;
+};
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
 
@@ -8,7 +19,7 @@ function isIpAddress(host: string) {
   return host.includes(":");
 }
 
-function isSecureRequest(req: Request) {
+function isSecureRequest(req: RequestLike): boolean {
   if (req.protocol === "https") return true;
 
   const forwardedProto = req.headers["x-forwarded-proto"];
@@ -18,12 +29,10 @@ function isSecureRequest(req: Request) {
     ? forwardedProto
     : forwardedProto.split(",");
 
-  return protoList.some(proto => proto.trim().toLowerCase() === "https");
+  return protoList.some((proto: string) => proto.trim().toLowerCase() === "https");
 }
 
-export function getSessionCookieOptions(
-  req: Request
-): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
+export function getSessionCookieOptions(req: RequestLike): SessionCookieOptions {
   // const hostname = req.hostname;
   // const shouldSetDomain =
   //   hostname &&
