@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "pnpm build",
+  "buildCommand": "pnpm build && node_modules/.bin/esbuild api/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/bundle.mjs",
   "outputDirectory": "dist/public",
   "installCommand": "pnpm install --no-frozen-lockfile",
   "framework": null,
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index.ts" },
+    { "source": "/api/:path*", "destination": "/api/bundle.mjs" },
     { "source": "/((?!api).*)", "destination": "/index.html" }
   ]
 }
